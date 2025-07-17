@@ -22,6 +22,9 @@ def main():
         config.handle_config_error(app, e)
         return
 
+    # Prevent garbage collection by keeping the window in a global var
+    global main_window, login_window
+
     # Check if we have stored credentials
     creds = credentials.get_credentials()
 
@@ -37,12 +40,14 @@ def main():
 
 
 def show_login_window(app):
+    global login_window
     login_window = LoginWindow()
     login_window.show()
     login_window.login_successful.connect(lambda: show_main_window(app))
 
 
 def show_main_window(app):
+    global main_window
     main_window = MainWindow()
     main_window.show()
 

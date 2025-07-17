@@ -1,8 +1,0 @@
-{
-  "apiKey": "test_api_key",
-  "authDomain": "test_auth_domain",
-  "projectId": "test_project_id",
-  "storageBucket": "test_storage_bucket",
-  "messagingSenderId": "test_messaging_sender_id",
-  "appId": "test_app_id"
-}

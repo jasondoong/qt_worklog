@@ -23,8 +23,8 @@ def generate_code_challenge(verifier: str) -> str:
 
 
 def get_authorization_url(code_challenge: str) -> str:
-    client_id = GOOGLE_OAUTH_CLIENT_CONFIG["web"]["client_id"]
-    redirect_uri = GOOGLE_OAUTH_CLIENT_CONFIG["web"]["redirect_uris"][0]
+    client_id = GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["client_id"]
+    redirect_uri = GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["redirect_uris"][0]
     return (
         "https://accounts.google.com/o/oauth2/v2/auth?"
         f"client_id={client_id}&"
@@ -37,9 +37,9 @@ def get_authorization_url(code_challenge: str) -> str:
 
 
 def exchange_code_for_token(code: str, code_verifier: str) -> dict:
-    client_id = GOOGLE_OAUTH_CLIENT_CONFIG["web"]["client_id"]
-    client_secret = GOOGLE_OAUTH_CLIENT_CONFIG["web"]["client_secret"]
-    redirect_uri = GOOGLE_OAUTH_CLIENT_CONFIG["web"]["redirect_uris"][0]
+    client_id = GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["client_id"]
+    client_secret = GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["client_secret"]
+    redirect_uri = GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["redirect_uris"][0]
 
     response = requests.post(
         "https://oauth2.googleapis.com/token",
@@ -57,8 +57,8 @@ def exchange_code_for_token(code: str, code_verifier: str) -> dict:
 
 
 def refresh_id_token(refresh_token: str) -> dict:
-    client_id = GOOGLE_OAUTH_CLIENT_CONFIG["web"]["client_id"]
-    client_secret = GOOGLE_OAUTH_CLIENT_CONFIG["web"]["client_secret"]
+    client_id = GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["client_id"]
+    client_secret = GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["client_secret"]
 
     response = requests.post(
         "https://oauth2.googleapis.com/token",
