@@ -11,22 +11,14 @@ ve workflow and want faster startup, global shortcuts, and system‑tray access.
 
 ## 2. Target Environment
 
-| Item              | Requirement
-                                    |
-| ----------------- | ----------------------------------------------------------
------------------------------------ |
-| Operating System  | Modern Linux distros (Ubuntu 22.04 LTS+, Fedora 39+, Arch
- 2025.07)                             |
-| Display Server    | X11 **and** Wayland
-                                    |
-| Python            | ≥ 3.12
-                                    |
-| Toolkit           | **Qt 6** via *PySide6* ≥ 6.0
-                                    |
-| Packaging         | Flatpak, AppImage, native `.deb` (built via PyInstaller +
-appstream‑metadata)                 |
-| Continuous Integration | GitHub Actions + branch protections
-                                    |
+| Item                   | Requirement                                                                                |
+| ---------------------- | ------------------------------------------------------------------------------------------ |
+| Operating System       | Modern Linux distros (Ubuntu 22.04 LTS+, Fedora 39+, Arch 2025.07)                             |
+| Display Server         | X11 **and** Wayland                                                                        |
+| Python                 | ≥ 3.12                                                                                     |
+| Toolkit                | **Qt 6** via *PySide6* ≥ 6.0                                                               |
+| Packaging              | Flatpak, AppImage, native `.deb` (built via PyInstaller + appstream‑metadata)                |
+| Continuous Integration | GitHub Actions + branch protections                                                        |
 
 ---
 
@@ -53,20 +45,13 @@ The application will use **asyncio** for non-blocking HTTP calls in services.
 
 ## 4. Data Model (parity with web API)
 
-| Entity     | Fields (desktop)
-               | Notes                                                    |
-| ---------- | -----------------------------------------------------------------
--------------- | -------------------------------------------------------- |
-| **User**   | id, name, email, avatar_url, locale, token, refresh_token
-               | Stored in `~/.config/worklog/credentials.json`           |
-| **Space**  | id, name, color, is_personal, created_at, updated_at
-               | `*my_space` constant respected                           |
-| **Member** | id, space_id → Space, display_name, role, joined_at
-               | Roles: owner \| editor \| viewer                         |
-| **Tag**    | id, space_id, name, color, created_at
-               |                                                          |
-| **Log**    | id, space_id, content (Markdown), record_time (tz‑aware), tag_ids
- [], created_at, updated_at | Schema versioned via Alembic |
+| Entity     | Fields (desktop)                                                              | Notes                                          |
+| ---------- | ----------------------------------------------------------------------------- | ---------------------------------------------- |
+| **User**   | id, name, email, avatar_url, locale, token, refresh_token                     | Stored in `~/.config/worklog/credentials.json` |
+| **Space**  | id, name, color, is_personal, created_at, updated_at                          | `*my_space` constant respected                 |
+| **Member** | id, space_id → Space, display_name, role, joined_at                           | Roles: owner \| editor \| viewer               |
+| **Tag**    | id, space_id, name, color, created_at                                         |                                                |
+| **Log**    | id, space_id, content (Markdown), record_time (tz‑aware), tag_ids [], created_at, updated_at | Schema versioned via Alembic                   |
 
 ---
 
@@ -81,37 +66,18 @@ The application will use **asyncio** for non-blocking HTTP calls in services.
 > required so every Firebase Auth request appends `?key=<API_KEY>` and OAuth can
 > identify the correct client ID.
 
-| Area | Desktop Requirement | Notes |
-|------|--------------------|-------|
-| **Sign‑in method** | Google account only (Firebase Auth “Sign in with Google
-” OAuth PKCE flow) | The web app does **not** yet implement e‑mail / password. |
-| **Firebase project config** | A *public* JSON (`firebase_config.json`) **must
-be present** in `~/.config/worklog/` **or** via env vars:<br>`WORKLOG_FB_API_KEY
-`, `WORKLOG_FB_CLIENT_ID`, `WORKLOG_FB_PROJECT_ID`, … | Same fields as the `fire
-baseConfig` object in the React code. Checked at startup; app aborts with an err
-or dialog if missing. |
-| **Google OAuth client** | `google_oauth_client.json` in the same directory or
-env var `WORKLOG_GOOGLE_CLIENT_ID` | Use the "installed" credentials from Google
- Cloud; only `client_id` and `redirect_uris` are required. |
-| **Login flow** | 1. `LoginWindow` launches the system browser (`QDesktopServices.openUrl`) to
-Google OAuth with PKCE.<br>2. Redirect URI `worklog://auth` (or `http://localhos
-t:<port>`) returns `authorization_code`.<br>3. Desktop exchanges the code via `i
-dentitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=<API_KEY>` → receive
-s **`id_token`** + **`refresh_token`**.<br>4. Call `POST /users/` to (create \|
-update) user profile.<br>5. Cache credentials in a secure manner (e.g., using the Secret Service API via a library like `secretstorage`). | Mirrors `signInWithPopup()` → `useAuthState()` logic in the web
-client. |
-| **Token refresh** | • Every 55 min (or immediately after resume) call `securet
-oken.googleapis.com/v1/token?key=<API_KEY>` with `grant_type=refresh_token`.<br>
-• On any non‑200 response, purge credentials and reopen `LoginWindow`. | Matches
- React’s silent‑refresh loop (`getIdToken(user, true)`). |
-| **API authorisation** | All HTTP requests include `Authorization: Bearer <id_t
-oken>` header. |  |
-| **Sign‑out** | Avatar ➜ “Logout”: clear credentials, flush models, show `LoginWindow`. | |
-| **Multi‑account** | Not yet supported on either platform. |  |
-| **Offline handling** | If token is ≥ 50 min old **and** no network, operate re
-ad‑only; queue mutations for later sync. | |
-| **Security** | • Tokens never written unencrypted.<br>• Validate Firebase *pro
-ject ID* (`worklog‑b6b69`) before use. | |
+| Area                        | Desktop Requirement                                                                                                                                                                                                                                                                                                                                                       | Notes                                                                                                                                  |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **Sign‑in method**          | Google account only (Firebase Auth “Sign in with Google” OAuth PKCE flow)                                                                                                                                                                                                                                                                                                 | The web app does **not** yet implement e‑mail / password.                                                                              |
+| **Firebase project config** | A *public* JSON (`firebase_config.json`) **must be present** in `~/.config/worklog/` **or** via env vars:<br>`WORKLOG_FB_API_KEY`, `WORKLOG_FB_CLIENT_ID`, `WORKLOG_FB_PROJECT_ID`, …                                                                                                                                                                                    | Same fields as the `firebaseConfig` object in the React code. Checked at startup; app aborts with an error dialog if missing.        |
+| **Google OAuth client**     | `google_oauth_client.json` in the same directory or env var `WORKLOG_GOOGLE_CLIENT_ID`                                                                                                                                                                                                                                                                                      | Use the "installed" credentials from Google Cloud; only `client_id` and `redirect_uris` are required.                                  |
+| **Login flow**              | 1. `LoginWindow` launches the system browser (`QDesktopServices.openUrl`) to Google OAuth with PKCE.<br>2. Redirect URI `worklog://auth` (or `http://localhost:<port>`) returns `authorization_code`.<br>3. Desktop exchanges the code via `identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=<API_KEY>` → receives **`id_token`** + **`refresh_token`**.<br>4. Call `POST /users/` to (create \| update) user profile.<br>5. Cache credentials in a secure manner (e.g., using the Secret Service API via a library like `secretstorage`). | Mirrors `signInWithPopup()` → `useAuthState()` logic in the web client.                                                                |
+| **Token refresh**           | • Every 55 min (or immediately after resume) call `securetoken.googleapis.com/v1/token?key=<API_KEY>` with `grant_type=refresh_token`.<br>• On any non‑200 response, purge credentials and reopen `LoginWindow`.                                                                                                                                                              | Matches React’s silent‑refresh loop (`getIdToken(user, true)`).                                                                         |
+| **API authorisation**       | All HTTP requests include `Authorization: Bearer <id_token>` header.                                                                                                                                                                                                                                                                                                     |                                                                                                                                        |
+| **Sign‑out**                | Avatar ➜ “Logout”: clear credentials, flush models, show `LoginWindow`.                                                                                                                                                                                                                                                                                                   |                                                                                                                                        |
+| **Multi‑account**           | Not yet supported on either platform.                                                                                                                                                                                                                                                                                                                                     |                                                                                                                                        |
+| **Offline handling**        | If token is ≥ 50 min old **and** no network, operate read‑only; queue mutations for later sync.                                                                                                                                                                                                                                                                             |                                                                                                                                        |
+| **Security**                | • Tokens never written unencrypted.<br>• Validate Firebase *project ID* (`worklog‑b6b69`) before use.                                                                                                                                                                                                                                                                      |                                                                                                                                        |
 
 ---
 
@@ -161,22 +127,14 @@ ject ID* (`worklog‑b6b69`) before use. | |
 
 ## 6. Non‑Functional Requirements
 
-| Category       | Spec
-    |
-| -------------- | -------------------------------------------------------------
---- |
-| Performance    | Cold start ≤ 1 s on SSD + 8 GB RAM
-    |
-| Responsiveness | < 100 ms UI feedback for local actions
-    |
-| Accessibility  | Standard Qt accessibility features; keyboard navigable
-    |
-| Localization   | English & zh‑TW strings using Qt's translation tools (`.ts` files).
-    |
-| Offline        | All reads from SQLite; sync engine runs every 30 s or when on
-line |
-| Security       | Store tokens securely; HTTPS pinning
-    |
+| Category       | Spec                                                              |
+| -------------- | ----------------------------------------------------------------- |
+| Performance    | Cold start ≤ 1 s on SSD + 8 GB RAM                                  |
+| Responsiveness | < 100 ms UI feedback for local actions                              |
+| Accessibility  | Standard Qt accessibility features; keyboard navigable            |
+| Localization   | English & zh‑TW strings using Qt's translation tools (`.ts` files). |
+| Offline        | All reads from SQLite; sync engine runs every 30 s or when online |
+| Security       | Store tokens securely; HTTPS pinning                              |
 
 ---
 
@@ -205,14 +163,11 @@ line |
 
 ## 8. Application Lifecycle
 
-| Phase                        | Action
-     |
-| ---------------------------- | -----------------------------------------------
----- |
-| `QApplication` start   | initialise logging, create directories, load `QSettings` |
-| Main window creation     | if token valid → `MainWindow`; else `LoginWindow`   |
-| `QApplication` exit    | flush sync queue, close DB connection
-     |
+| Phase                  | Action                                                     |
+| ---------------------- | ---------------------------------------------------------- |
+| `QApplication` start   | initialise logging, create directories, load `QSettings`   |
+| Main window creation   | if token valid → `MainWindow`; else `LoginWindow`         |
+| `QApplication` exit    | flush sync queue, close DB connection                      |
 
 ---
 
@@ -226,17 +181,14 @@ line |
 
 ## 10. Mapping from Web Codebase → Desktop Modules
 
-| Web (React)                   | Desktop (PySide6)                 | Notes
-                                         |
-| ----------------------------- | ----------------------------- | --------------
----------------------------------------- |
+| Web (React)                   | Desktop (PySide6)             | Notes                                       |
+| ----------------------------- | ----------------------------- | ------------------------------------------- |
 | `store-user.js`               | `models/user_model.py`        | `QObject` with signals for property changes |
-| `store-space.js`              | `models/space_model.py`       | `QAbstractListModel` for spaces list |
-| `store-logs.js`               | `models/log_model.py`         | `QAbstractListModel` for logs list |
-| `CreateLogDialog.jsx`         | `ui/dialogs/log_editor.py`    |
-| `TagListDialog.jsx`           | `ui/dialogs/tag_list.py`      |
-| `SpaceMemberEditorDialog.jsx` | `ui/dialogs/member_editor.py` |
-                                         |
+| `store-space.js`              | `models/space_model.py`       | `QAbstractListModel` for spaces list        |
+| `store-logs.js`               | `models/log_model.py`         | `QAbstractListModel` for logs list          |
+| `CreateLogDialog.jsx`         | `ui/dialogs/log_editor.py`    |                                             |
+| `TagListDialog.jsx`           | `ui/dialogs/tag_list.py`      |                                             |
+| `SpaceMemberEditorDialog.jsx` | `ui/dialogs/member_editor.py` |                                             |
 
 ---
 
@@ -250,14 +202,14 @@ line |
 
 ## 12. Milestones
 
-| Sprint | Deliverable                                          |
-| ------ | ---------------------------------------------------- |
+| Sprint    | Deliverable                                                         |
+| --------- | ------------------------------------------------------------------- |
 | 1 (2 wks) | Skeleton PySide6 app **+ working Google login with PKCE & config JSON** |
-| 2 | Space & Tag models + list UI                              |
-| 3 | Log list with offline cache                               |
-| 4 | Create/Edit dialog, sync engine                           |
-| 5 | Export & Settings                                         |
-| 6 | Packaging, QA, translations                               |
+| 2         | Space & Tag models + list UI                                        |
+| 3         | Log list with offline cache                                         |
+| 4         | Create/Edit dialog, sync engine                                     |
+| 5         | Export & Settings                                                   |
+| 6         | Packaging, QA, translations                                         |
 
 ---
 
