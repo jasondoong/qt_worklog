@@ -9,7 +9,13 @@ from ... import config
 
 def get_redirect_port():
     redirect_uri = config.GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["redirect_uris"][0]
-    return urlparse(redirect_uri).port
+    parsed_uri = urlparse(redirect_uri)
+    port = parsed_uri.port
+    if port is None:
+        if parsed_uri.scheme == "https":
+            return 443
+        return 80
+    return port
 
 
 class CallbackHandler(BaseHTTPRequestHandler):
