@@ -38,19 +38,8 @@ class LoginWindow(QWidget):
 
         # Login button
         self.login_button = QPushButton("Sign in with Google")
+        self.login_button.setObjectName("LoginButton")
         self.login_button.clicked.connect(self.login)
-        self.login_button.setStyleSheet("""
-            QPushButton {
-                background-color: #4285F4;
-                color: white;
-                border-radius: 4px;
-                padding: 10px;
-                font-size: 14px;
-            }
-            QPushButton:hover {
-                background-color: #357ae8;
-            }
-        """)
 
         # Layout
         layout = QGridLayout()
