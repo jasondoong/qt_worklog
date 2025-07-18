@@ -38,7 +38,7 @@ def get_authorization_url(code_challenge: str, port: int) -> str:
         f"client_id={client_id}&"
         f"redirect_uri={redirect_uri}&"
         "response_type=code&"
-        "scope=openid%20email%20profile&"
+        "scope=openid%20https://www.googleapis.com/auth/userinfo.email%20https://www.googleapis.com/auth/userinfo.profile&"
         f"code_challenge={code_challenge}&"
         "code_challenge_method=S256"
     )
