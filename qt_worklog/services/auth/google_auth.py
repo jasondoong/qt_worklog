@@ -45,8 +45,9 @@ def get_authorization_url(code_challenge: str, port: int) -> str:
 
 
 def exchange_code_for_token(code: str, code_verifier: str, port: int) -> dict:
+    """Exchange OAuth authorization code for a Firebase ID token."""
+
     client_id = config.GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["client_id"]
-    client_secret = config.GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["client_secret"]
     redirect_uri_base = config.GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["redirect_uris"][0]
 
     parsed = QUrl(redirect_uri_base)
@@ -55,32 +56,35 @@ def exchange_code_for_token(code: str, code_verifier: str, port: int) -> dict:
     else:
         redirect_uri = redirect_uri_base
 
+    api_key = config.FIREBASE_CONFIG["apiKey"]
+
+    payload = {
+        "requestUri": redirect_uri,
+        "postBody": (
+            f"providerId=google.com&code={code}&code_verifier={code_verifier}&"
+            f"client_id={client_id}&redirect_uri={redirect_uri}"
+        ),
+        "returnSecureToken": True,
+    }
+
     response = requests.post(
-        "https://oauth2.googleapis.com/token",
-        data={
-            "code": code,
-            "client_id": client_id,
-            "client_secret": client_secret,
-            "redirect_uri": redirect_uri,
-            "grant_type": "authorization_code",
-            "code_verifier": code_verifier,
-        },
+        f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key={api_key}",
+        json=payload,
     )
     response.raise_for_status()
     return response.json()
 
 
 def refresh_id_token(refresh_token: str) -> dict:
-    client_id = config.GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["client_id"]
-    client_secret = config.GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["client_secret"]
+    """Refresh the Firebase ID token using the secure token endpoint."""
+
+    api_key = config.FIREBASE_CONFIG["apiKey"]
 
     response = requests.post(
-        "https://oauth2.googleapis.com/token",
+        f"https://securetoken.googleapis.com/v1/token?key={api_key}",
         data={
-            "client_id": client_id,
-            "client_secret": client_secret,
-            "refresh_token": refresh_token,
             "grant_type": "refresh_token",
+            "refresh_token": refresh_token,
         },
     )
     response.raise_for_status()
