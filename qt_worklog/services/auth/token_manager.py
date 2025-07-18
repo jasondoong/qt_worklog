@@ -13,6 +13,17 @@ class TokenManager(QObject):
         self.timer.timeout.connect(self.refresh_token)
         self.timer.start(55 * 60 * 1000)  # 55 minutes
 
+    def get_token(self) -> str | None:
+        """Return the current ID token if available."""
+        creds = credentials.get_credentials()
+        if creds:
+            return creds.get("id_token")
+        return None
+
+    def clear_token(self) -> None:
+        """Remove any stored credentials."""
+        credentials.delete_credentials()
+
     def refresh_token(self):
         creds = credentials.get_credentials()
         if not creds:

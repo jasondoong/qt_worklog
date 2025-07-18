@@ -12,8 +12,10 @@ from ..services.auth import credentials
 
 class LoginWindow(QWidget):
     login_successful = Signal()
-    def __init__(self):
+
+    def __init__(self, token_manager=None):
         super().__init__()
+        self.token_manager = token_manager
 
         self.setWindowTitle("Login to Worklog")
         self.setFixedSize(300, 200)
