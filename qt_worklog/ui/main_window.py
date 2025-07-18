@@ -19,6 +19,8 @@ from typing import Any, Iterable, Mapping
 from ..services import api_client
 from .login_window import LoginWindow
 from .worklog_card import WorklogCard
+from .day_card import DayCard
+from .flow_layout import FlowLayout
 
 
 class MainWindow(QMainWindow):
@@ -62,7 +64,7 @@ class MainWindow(QMainWindow):
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         self.main_content = QWidget()
-        self.main_content_layout = QVBoxLayout()
+        self.main_content_layout = FlowLayout(self.main_content, 10, 10)
         self.main_content.setLayout(self.main_content_layout)
         self.scroll_area.setWidget(self.main_content)
 
@@ -153,15 +155,17 @@ class MainWindow(QMainWindow):
                 groups[d].append(rec)
 
         # Clear existing widgets
-        for i in reversed(range(self.main_content_layout.count())):
-            self.main_content_layout.itemAt(i).widget().setParent(None)
+        while self.main_content_layout.count():
+            child = self.main_content_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
 
         for d in sorted(groups.keys(), reverse=True):
-            date_label = QLabel(f"<b>{d.strftime('%A, %B %d, %Y')}</b>")
-            self.main_content_layout.addWidget(date_label)
+            day_card = DayCard(d.strftime('%A, %B %d, %Y'))
             for log in groups[d]:
                 card = WorklogCard(log)
-                self.main_content_layout.addWidget(card)
+                day_card.add_worklog_card(card)
+            self.main_content_layout.addWidget(day_card)
 
         self._month_lbl.setText(
             self._current_month.strftime("%B %Y")
