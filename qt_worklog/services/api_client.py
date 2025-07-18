@@ -30,7 +30,6 @@ def authenticate_user(id_token: str) -> dict:
     data = {
         "avatar_link": claims.get("picture"),
         "email": claims.get("email"),
-        "id": claims.get("sub"),
         "name": claims.get("name"),
     }
 
