@@ -28,6 +28,7 @@ def authenticate_user(id_token: str) -> dict:
         claims = {}
 
     data = {
+        "id": claims.get("user_id"),
         "avatar_link": claims.get("picture"),
         "email": claims.get("email"),
         "name": claims.get("name"),
