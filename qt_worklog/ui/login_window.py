@@ -29,13 +29,13 @@ class LoginWindow(QWidget):
     @Slot()
     def login(self):
         self.callback_server.start()
-        self.code_verifier = google_auth.open_browser_for_login()
+        self.code_verifier = google_auth.open_browser_for_login(self.callback_server.port)
 
     @Slot(str)
     def handle_auth_code(self, code):
         self.callback_server.stop()
         try:
-            token_data = google_auth.exchange_code_for_token(code, self.code_verifier)
+            token_data = google_auth.exchange_code_for_token(code, self.code_verifier, self.callback_server.port)
             id_token = token_data["id_token"]
             api_client.authenticate_user(id_token)
             credentials.store_credentials(token_data)

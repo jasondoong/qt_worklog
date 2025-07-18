@@ -1,7 +1,6 @@
 import base64
 import hashlib
 import os
-import webbrowser
 
 import requests
 from PySide6.QtCore import QUrl
@@ -22,9 +21,18 @@ def generate_code_challenge(verifier: str) -> str:
     )
 
 
-def get_authorization_url(code_challenge: str) -> str:
+def get_authorization_url(code_challenge: str, port: int) -> str:
     client_id = config.GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["client_id"]
-    redirect_uri = config.GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["redirect_uris"][0]
+    redirect_uri_base = config.GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["redirect_uris"][0]
+
+    # If the configured redirect URI is http://localhost with no port specified,
+    # use the dynamically chosen port from the callback server.
+    parsed = QUrl(redirect_uri_base)
+    if parsed.scheme() == "http" and parsed.host() == "localhost" and parsed.port() == -1:
+        redirect_uri = f"http://localhost:{port}"
+    else:
+        redirect_uri = redirect_uri_base
+
     return (
         "https://accounts.google.com/o/oauth2/v2/auth?"
         f"client_id={client_id}&"
@@ -36,10 +44,16 @@ def get_authorization_url(code_challenge: str) -> str:
     )
 
 
-def exchange_code_for_token(code: str, code_verifier: str) -> dict:
+def exchange_code_for_token(code: str, code_verifier: str, port: int) -> dict:
     client_id = config.GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["client_id"]
     client_secret = config.GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["client_secret"]
-    redirect_uri = config.GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["redirect_uris"][0]
+    redirect_uri_base = config.GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["redirect_uris"][0]
+
+    parsed = QUrl(redirect_uri_base)
+    if parsed.scheme() == "http" and parsed.host() == "localhost" and parsed.port() == -1:
+        redirect_uri = f"http://localhost:{port}"
+    else:
+        redirect_uri = redirect_uri_base
 
     response = requests.post(
         "https://oauth2.googleapis.com/token",
@@ -73,9 +87,9 @@ def refresh_id_token(refresh_token: str) -> dict:
     return response.json()
 
 
-def open_browser_for_login():
+def open_browser_for_login(port: int):
     code_verifier = generate_code_verifier()
     code_challenge = generate_code_challenge(code_verifier)
-    url = get_authorization_url(code_challenge)
+    url = get_authorization_url(code_challenge, port)
     QDesktopServices.openUrl(QUrl(url))
     return code_verifier
