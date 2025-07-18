@@ -35,6 +35,7 @@ class MainWindow(QMainWindow):
 
         # Header
         header = QWidget()
+        header.setObjectName("Header")
         header_layout = QGridLayout()
         header.setLayout(header_layout)
 

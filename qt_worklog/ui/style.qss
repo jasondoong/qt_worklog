@@ -48,3 +48,16 @@ QPushButton:hover {
 QPushButton:pressed {
     background-color: #707070;
 }
+
+/* Login button styling */
+QPushButton#LoginButton {
+    background-color: #4285F4;
+    color: white;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 14px;
+}
+
+QPushButton#LoginButton:hover {
+    background-color: #357ae8;
+}
