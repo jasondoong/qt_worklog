@@ -4,6 +4,13 @@ from urllib.parse import urlparse, parse_qs
 
 from PySide6.QtCore import QObject, Signal
 
+from ... import config
+
+
+def get_redirect_port():
+    redirect_uri = config.GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["redirect_uris"][0]
+    return urlparse(redirect_uri).port
+
 
 class CallbackHandler(BaseHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
@@ -26,9 +33,9 @@ class CallbackHandler(BaseHTTPRequestHandler):
 class CallbackServer(QObject):
     authorization_code_received = Signal(str)
 
-    def __init__(self, port=8080):
+    def __init__(self):
         super().__init__()
-        self.port = port
+        self.port = get_redirect_port()
         self.server = None
         self.thread = None
 
