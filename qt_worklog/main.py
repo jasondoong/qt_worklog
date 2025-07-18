@@ -9,9 +9,16 @@ from .ui.main_window import MainWindow
 from .logging_config import setup_logging
 
 
+import os
+
 def main():
     setup_logging()
     app = QApplication(sys.argv)
+
+    # Load stylesheet
+    style_path = os.path.join(os.path.dirname(__file__), "ui", "style.qss")
+    with open(style_path, "r") as f:
+        app.setStyleSheet(f.read())
 
     try:
         config.load_all_configs()
