@@ -1,3 +1,5 @@
+import base64
+import json
 import requests
 from typing import Any, Callable, Dict, Optional
 
@@ -14,8 +16,27 @@ def _handle_auth(resp: requests.Response, sign_out: Optional[Callable[[], None]]
 
 
 def authenticate_user(id_token: str) -> dict:
+    """Create or update the user on the backend using the Firebase ID token."""
+
+    # Decode the JWT without verification to extract basic user info. This
+    # avoids pulling in heavy dependencies solely for base64 decoding.
+    try:
+        payload = id_token.split(".")[1]
+        padded = payload + "=" * (-len(payload) % 4)
+        claims = json.loads(base64.urlsafe_b64decode(padded).decode("utf-8"))
+    except Exception:
+        claims = {}
+
+    data = {
+        "avatar_link": claims.get("picture"),
+        "email": claims.get("email"),
+        "id": claims.get("sub"),
+        "name": claims.get("name"),
+    }
+
     response = requests.post(
         f"{API_URL}/users/",
+        json=data,
         headers={"Authorization": f"Bearer {id_token}"},
     )
     response.raise_for_status()
