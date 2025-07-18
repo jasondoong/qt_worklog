@@ -1,13 +1,13 @@
 import sys
 
-from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QLabel, QGridLayout, QMessageBox
+from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QGridLayout, QMessageBox
 from PySide6.QtCore import Slot, Signal, Qt
-from PySide6.QtGui import QPixmap, QScreen
+from PySide6.QtGui import QPixmap
 
 from ..services.auth import google_auth
-from ..services.auth.callback_server import CallbackServer
 from ..services import api_client
 from ..services.auth import credentials
+from .. import config
 
 
 class LoginWindow(QWidget):
@@ -60,21 +60,14 @@ class LoginWindow(QWidget):
         self.setLayout(layout)
 
 
-        self.callback_server = CallbackServer()
-        self.callback_server.authorization_code_received.connect(self.handle_auth_code)
-
     @Slot()
     def login(self):
-        self.callback_server.start()
-        self.code_verifier = google_auth.open_browser_for_login(self.callback_server.port)
-
-    @Slot(str)
-    def handle_auth_code(self, code):
-        self.callback_server.stop()
         try:
-            token_data = google_auth.exchange_code_for_token(code, self.code_verifier, self.callback_server.port)
-            id_token = token_data["id_token"]
-            api_client.authenticate_user(id_token)
+            google_id_token, _ = google_auth.do_google_oauth()
+            api_key = config.FIREBASE_CONFIG["apiKey"]
+            fb_id_token, fb_refresh = google_auth.exchange_google_to_firebase(api_key, google_id_token)
+            token_data = {"id_token": fb_id_token, "refresh_token": fb_refresh}
+            api_client.authenticate_user(fb_id_token)
             credentials.store_credentials(token_data)
             print("User authenticated and credentials stored.")
             self.login_successful.emit()
