@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QSizePolicy,
     QSpacerItem,
+    QStatusBar,
 )
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtGui import QIcon
@@ -17,6 +18,7 @@ from collections import defaultdict
 from typing import Any, Iterable, Mapping
 from ..services import api_client
 from .login_window import LoginWindow
+from .worklog_card import WorklogCard
 
 
 class MainWindow(QMainWindow):
@@ -73,6 +75,8 @@ class MainWindow(QMainWindow):
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
 
+        self.setStatusBar(QStatusBar(self))
+
         self.refresh()
 
     @Slot()
@@ -83,12 +87,14 @@ class MainWindow(QMainWindow):
         self.close()
 
     def refresh(self):
+        self.statusBar().showMessage("Refreshing worklogs...")
         token = self.token_manager.get_token()
         if not token:
             return
         try:
             logs = api_client.get_worklogs(token, sign_out=self.on_logout) or []
-        except Exception:
+        except Exception as e:
+            self.statusBar().showMessage(f"Error refreshing worklogs: {e}", 5000)
             return
 
         if not isinstance(logs, Iterable):
@@ -154,14 +160,15 @@ class MainWindow(QMainWindow):
             date_label = QLabel(f"<b>{d.strftime('%A, %B %d, %Y')}</b>")
             self.main_content_layout.addWidget(date_label)
             for log in groups[d]:
-                log_label = QLabel(log.get("content", "No content"))
-                self.main_content_layout.addWidget(log_label)
+                card = WorklogCard(log)
+                self.main_content_layout.addWidget(card)
 
         self._month_lbl.setText(
             self._current_month.strftime("%B %Y")
             if self._current_month
             else "No date"
         )
+        self.statusBar().clearMessage()
 
     def _shift_month(self, delta: int):
         if self._current_month is None:

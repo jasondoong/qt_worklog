@@ -1,0 +1,39 @@
+/* General styling */
+QMainWindow {
+    background-color: #f0f0f0;
+}
+
+/* Header styling */
+QWidget#Header {
+    background-color: #e0e0e0;
+    border-bottom: 1px solid #c0c0c0;
+}
+
+QLabel {
+    font-size: 14px;
+}
+
+/* WorklogCard styling */
+QWidget#WorklogCard {
+    background-color: #ffffff;
+    border: 1px solid #d0d0d0;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+/* Button styling */
+QPushButton {
+    background-color: #d0d0d0;
+    border: 1px solid #c0c0c0;
+    border-radius: 5px;
+    padding: 5px 10px;
+}
+
+QPushButton:hover {
+    background-color: #c0c0c0;
+}
+
+QPushButton:pressed {
+    background-color: #b0b0b0;
+}
