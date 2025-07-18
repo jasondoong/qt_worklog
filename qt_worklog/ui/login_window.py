@@ -1,6 +1,6 @@
 import sys
 
-from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QLabel, QGridLayout
+from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QLabel, QGridLayout, QMessageBox
 from PySide6.QtCore import Slot, Signal, Qt
 from PySide6.QtGui import QPixmap, QScreen
 
@@ -81,3 +81,5 @@ class LoginWindow(QWidget):
             self.close()
         except Exception as e:
             print(f"An error occurred: {e}")
+            error_message = f"An error occurred during login: {e}"
+            QMessageBox.critical(self, "Login Failed", error_message)
