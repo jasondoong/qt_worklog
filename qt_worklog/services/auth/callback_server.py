@@ -1,4 +1,5 @@
 import threading
+import socket
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
 
@@ -7,15 +8,46 @@ from PySide6.QtCore import QObject, Signal
 from ... import config
 
 
-def get_redirect_port():
-    redirect_uri = config.GOOGLE_OAUTH_CLIENT_CONFIG["installed"]["redirect_uris"][0]
-    parsed_uri = urlparse(redirect_uri)
-    port = parsed_uri.port
-    if port is None:
-        if parsed_uri.scheme == "https":
-            return 443
-        return 80
-    return port
+def _port_from_config() -> int | None:
+    """Return port explicitly specified in redirect_uris if present."""
+    redirect_uris = config.GOOGLE_OAUTH_CLIENT_CONFIG["installed"].get(
+        "redirect_uris", []
+    )
+    for uri in redirect_uris:
+        parsed = urlparse(uri)
+        if (
+            parsed.scheme == "http"
+            and parsed.hostname == "localhost"
+            and parsed.port
+        ):
+            return parsed.port
+    return None
+
+
+def _find_free_port() -> int:
+    """Ask the OS for an available high port."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(("", 0))
+        return s.getsockname()[1]
+
+
+def get_redirect_port() -> int:
+    """Determine which port the local OAuth callback server should bind."""
+    port = _port_from_config()
+    if port:
+        return port
+    try:
+        return _find_free_port()
+    except OSError:
+        # Final fallback to common ports if everything else fails
+        for fallback in (8080, 8888):
+            try:
+                with socket.socket() as s:
+                    s.bind(("", fallback))
+                return fallback
+            except OSError:
+                continue
+        raise RuntimeError("Unable to determine a free port for OAuth callback")
 
 
 class CallbackHandler(BaseHTTPRequestHandler):
