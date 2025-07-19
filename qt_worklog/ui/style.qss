@@ -21,6 +21,9 @@ QWidget#DayCard {
     border: 1px solid #505050;
     border-radius: 5px;
     margin: 10px;
+    padding: 10px;
+    min-width: 250px;
+    max-width: 250px;
 }
 
 /* WorklogCard styling */
