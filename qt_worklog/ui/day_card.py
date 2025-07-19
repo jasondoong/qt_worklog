@@ -3,6 +3,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QLabel,
 )
+from PySide6.QtCore import Qt
 
 class DayCard(QWidget):
     def __init__(self, date_str):
@@ -18,6 +19,7 @@ class DayCard(QWidget):
         self.setLayout(self.layout)
         self.setObjectName("DayCard")
         self.setFixedWidth(250)
+        self.setAttribute(Qt.WA_StyledBackground, True)
 
     def add_worklog_card(self, card):
         self.layout.addWidget(card)

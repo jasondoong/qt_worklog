@@ -3,6 +3,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QLabel,
 )
+from PySide6.QtCore import Qt
+
 
 class WorklogCard(QWidget):
     def __init__(self, worklog):
@@ -19,3 +21,5 @@ class WorklogCard(QWidget):
 
         self.setLayout(layout)
         self.setObjectName("WorklogCard")
+        self.setAttribute(Qt.WA_StyledBackground, True)
+

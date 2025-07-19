@@ -17,7 +17,7 @@ QLabel {
 
 /* DayCard styling */
 QWidget#DayCard {
-    background-color: #3c3c3c;
+    background-color: #505050;
     border: 1px solid #505050;
     border-radius: 5px;
     margin: 10px;
@@ -28,7 +28,6 @@ QWidget#DayCard {
 
 /* WorklogCard styling */
 QWidget#WorklogCard {
-    background-color: #3c3c3c;
     border: 1px solid #505050;
     border-radius: 5px;
     padding: 10px;
