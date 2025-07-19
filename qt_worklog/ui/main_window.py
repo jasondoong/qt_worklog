@@ -39,7 +39,6 @@ class MainWindow(QMainWindow):
         header_layout = QGridLayout()
         header.setLayout(header_layout)
 
-        title_label = QLabel("Worklog")
         self._month_lbl = QLabel("Month")
         prev_btn = QPushButton(QIcon.fromTheme("go-previous"), "")
         next_btn = QPushButton(QIcon.fromTheme("go-next"), "")
@@ -49,17 +48,24 @@ class MainWindow(QMainWindow):
         next_btn.clicked.connect(self._on_next_month)
         logout_btn.clicked.connect(self.on_logout)
 
-        header_layout.addWidget(self._month_lbl, 0, 0, Qt.AlignCenter)
+        # Add left spacer
+        header_layout.addItem(
+            QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum), 0, 0
+        )
+
+        # Center controls
         header_layout.addWidget(prev_btn, 0, 1)
-        header_layout.addWidget(next_btn, 0, 2)
+        header_layout.addWidget(self._month_lbl, 0, 2)
+        header_layout.addWidget(next_btn, 0, 3)
+
+        # Add right spacer
         header_layout.addItem(
-            QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum), 0, 3
+            QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum), 0, 4
         )
-        header_layout.addWidget(title_label, 0, 4, Qt.AlignCenter)
-        header_layout.addItem(
-            QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum), 0, 5
-        )
-        header_layout.addWidget(logout_btn, 0, 6)
+
+        # Right-aligned logout button
+        header_layout.addWidget(logout_btn, 0, 5)
+
 
         # Main content area
         self.scroll_area = QScrollArea()

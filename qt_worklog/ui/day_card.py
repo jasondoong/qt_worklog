@@ -10,8 +10,7 @@ class DayCard(QWidget):
         super().__init__()
 
         self.layout = QVBoxLayout()
-        self.layout.setContentsMargins(10, 10, 10, 10)
-        self.layout.setSpacing(5)
+        self.layout.setSpacing(10)
 
         date_label = QLabel(f"<b>{date_str}</b>")
         self.layout.addWidget(date_label)
