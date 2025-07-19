@@ -1,4 +1,5 @@
-from PySide6.QtCore import QObject, QTimer, Signal
+from PySide6.QtCore import QObject, QTimer, Signal, Slot, Qt
+from PySide6.QtGui import QGuiApplication
 
 from . import google_auth, credentials
 from ... import config
@@ -13,6 +14,14 @@ class TokenManager(QObject):
         self.timer.timeout.connect(self.refresh_token)
         # Firebase ID tokens expire after 1 hour (3600s). Refresh a bit sooner.
         self.timer.start(55 * 60 * 1000)  # 55 minutes
+
+        # Refresh immediately on startup so resumed sessions get a fresh token.
+        self.refresh_token()
+
+        # Also refresh whenever the application becomes active again (resume).
+        app = QGuiApplication.instance()
+        if app:
+            app.applicationStateChanged.connect(self._on_app_state_changed)
 
     def get_token(self) -> str | None:
         """Return the current ID token if available and not expired."""
@@ -44,3 +53,8 @@ class TokenManager(QObject):
             print(f"Failed to refresh token: {e}")
             credentials.delete_credentials()
             self.login_required.emit()
+
+    @Slot(Qt.ApplicationState)
+    def _on_app_state_changed(self, state: Qt.ApplicationState) -> None:
+        if state == Qt.ApplicationActive:
+            self.refresh_token()
