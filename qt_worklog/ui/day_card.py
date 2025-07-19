@@ -18,7 +18,6 @@ class DayCard(QWidget):
 
         self.setLayout(self.layout)
         self.setObjectName("DayCard")
-        self.setFixedWidth(250)
         self.setAttribute(Qt.WA_StyledBackground, True)
 
     def add_worklog_card(self, card):
